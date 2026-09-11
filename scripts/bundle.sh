@@ -35,14 +35,23 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 PLIST
 echo "APPL????" > "$APP/Contents/PkgInfo"
 
-# Sign with the "Flow Dev" identity when it exists so the Accessibility grant survives rebuilds.
-# An ad hoc signature changes with every build, and macOS silently drops the grant each time.
-if security find-identity -v -p codesigning 2>/dev/null | grep -q '"Flow Dev"'; then
+# Sign with a stable identity so the Accessibility grant survives rebuilds. An ad hoc signature ("-")
+# changes with every build, so macOS drops the grant each time. Preference order:
+#   1. $FLOW_SIGN_IDENTITY, if you set it (e.g. an "Apple Development: ..." identity you already have)
+#   2. the self-signed "Flow Dev" identity from scripts/make_signing_cert.sh, if present
+#   3. the first "Apple Development" identity in your keychain, if any
+#   4. ad hoc, with a warning
+if [ -n "$FLOW_SIGN_IDENTITY" ]; then
+  IDENTITY="$FLOW_SIGN_IDENTITY"
+elif security find-identity -v -p codesigning 2>/dev/null | grep -q '"Flow Dev"'; then
   IDENTITY="Flow Dev"
+elif security find-identity -v -p codesigning 2>/dev/null | grep -q "Apple Development:"; then
+  IDENTITY=$(security find-identity -v -p codesigning | awk -F\" '/Apple Development:/{print $2; exit}')
 else
   IDENTITY="-"
-  echo "warning: no 'Flow Dev' signing identity; signing ad hoc. Every rebuild will lose the Accessibility grant." >&2
-  echo "         Run scripts/make_signing_cert.sh once to fix that." >&2
+  echo "warning: no stable signing identity; signing ad hoc. Every rebuild will lose the Accessibility grant." >&2
+  echo "         Set FLOW_SIGN_IDENTITY to an identity from 'security find-identity -v -p codesigning'," >&2
+  echo "         or run scripts/make_signing_cert.sh once." >&2
 fi
 codesign --force --deep --sign "$IDENTITY" "$APP"
 echo "built $APP (signed: $IDENTITY)"

@@ -7,6 +7,21 @@ An open-source, fully local [Wispr Flow](https://wisprflow.ai) clone for macOS: 
 - No API keys, no accounts, no Keychain, no cloud calls, no telemetry. The only network request the app ever makes is the one-time model download on first run.
 - History with a Raw | Cleaned toggle, a dictionary, snippets, per-app tone.
 
+## Screenshots
+
+The dictation HUD, at the top of the screen so it never covers the caret:
+
+![Dictation HUD](docs/screenshots/overlay.png)
+
+History, with the Raw | Cleaned toggle:
+
+![History window](docs/screenshots/history.png)
+
+Onboarding and Settings:
+
+![Onboarding](docs/screenshots/onboarding.png)
+![Settings](docs/screenshots/settings.png)
+
 ## Requirements
 
 - An Apple Silicon Mac. Parakeet on CoreML uses the Neural Engine; Intel Macs are too slow for the once-a-second interim pass.
@@ -34,6 +49,8 @@ make run            # bundle, then open build/Flow.app
 make test           # FlowCore and Flow tests (the Parakeet tests skip until the model is installed)
 make check-windows  # opens every window, prints sizes, screenshots to build/windows/, exits 1 on any miss
 ```
+
+There are no prebuilt binaries. Build it yourself with `make run`; the first launch walks you through permissions and the model download. (Distributing a ready-to-run `.app` would need Apple Developer ID signing and notarization, which this project doesn't do.)
 
 Layout:
 
