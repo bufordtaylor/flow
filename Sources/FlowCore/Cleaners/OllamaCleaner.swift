@@ -53,7 +53,9 @@ public final class OllamaCleaner: Cleaner, @unchecked Sendable {
             "think": false,
             "messages": [
                 ["role": "system", "content": Prompts.system(context: context)],
-                ["role": "user", "content": raw],
+                ["role": "user", "content": Prompts.userMessage(Prompts.exampleRaw)],
+                ["role": "assistant", "content": Prompts.exampleCleaned],
+                ["role": "user", "content": Prompts.userMessage(raw)],
             ],
             "options": ["temperature": 0, "num_predict": Prompts.maxResponseTokens(rawCharacters: raw.count)],
         ]

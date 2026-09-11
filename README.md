@@ -1,6 +1,6 @@
 # Flow
 
-A menu bar app for one person that replaces Wispr Flow: hold a hotkey, talk, release, and cleaned-up text lands at the caret of whatever app has focus. Everything runs on the Mac.
+An open-source, fully local [Wispr Flow](https://wisprflow.ai) clone for macOS: hold a hotkey, talk, release, and cleaned-up text lands at the caret of whatever app has focus. Unlike Wispr Flow, everything runs on your Mac. No account, no cloud, no subscription. The only network request the app ever makes is a one-time model download on first run.
 
 - Speech to text: NVIDIA Parakeet TDT 0.6B v3 on CoreML through [FluidAudio](https://github.com/FluidInference/FluidAudio).
 - Cleanup: Apple's on-device Foundation Model on macOS 26 with Apple Intelligence on; Ollama on `127.0.0.1` when it isn't; a rule-based cleaner when neither is there.
@@ -69,7 +69,7 @@ FluidAudio never downloads anything on its own: the app forces its offline mode 
 
 ## Permissions: grant and reset
 
-The bundle id is `com.yourname.flow`; macOS ties both grants to it.
+The bundle id is `com.yourname.flow`; macOS ties both grants to it. It's a placeholder used consistently across `scripts/bundle.sh`, the log subsystem, and the settings domain. If you fork this, change `com.yourname.flow` to your own reverse-DNS id in `scripts/bundle.sh` (and, if you like, in `Sources/FlowCore/Log.swift`) so your build doesn't share TCC grants or logs with anyone else's.
 
 ```sh
 tccutil reset Accessibility com.yourname.flow
@@ -120,6 +120,13 @@ Escape while holding cancels (a `cancelled` row, nothing inserted). A press shor
 FLOW_DEBUG=1 build/Flow.app/Contents/MacOS/Flow
 ```
 
+Other environment switches, mainly for development and testing:
+
+- `FLOW_NO_TAP=1` — start without installing the global hotkey event tap. Dictation is triggered only by Option-clicking the menu bar icon. Use this if the tap ever misbehaves; it removes any chance of the tap affecting the keyboard.
+- `FLOW_FAKE_AUDIO=/path/to.wav` — read that WAV file instead of the microphone for each dictation. Lets you exercise the whole pipeline on a machine with no usable input device. Ships for testing; there is no way to trigger it except by setting this variable yourself.
+- `FLOW_MODEL_PATH=/path` — point the Parakeet integration tests at a model directory other than the default.
+- `FLOW_RECORD_FIXTURE=1` — rewrite `fixtures/parakeet/hello_world.json` from the current model output when the integration test runs.
+
 ## Verifying the no-network claim
 
 With the app running and a dictation in progress:
@@ -149,3 +156,9 @@ With the Apple or rules cleaner the list is empty. With Ollama it shows exactly 
 ## Non-goals
 
 No Windows/Linux build, no phone keyboards, no meeting notes, no team features, no auto-updates, no command mode (there's a `// TODO: command mode` where the pipeline would branch on a second hotkey), no cloud APIs of any kind, no crash reporter.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
+
+Flow is an independent open-source project and is not affiliated with, endorsed by, or connected to Wispr Flow or its makers. "Wispr Flow" is referenced only to describe what this app does.

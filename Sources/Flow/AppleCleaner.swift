@@ -64,7 +64,7 @@ final class AppleCleaner: Cleaner, Sendable {
         var options = GenerationOptions(temperature: 0)
         options.maximumResponseTokens = Prompts.maxResponseTokens(rawCharacters: raw.count)
         do {
-            return try await session.respond(to: raw, options: options).content
+            return try await session.respond(to: Prompts.userMessage(raw), options: options).content
         } catch let error as LanguageModelSession.GenerationError {
             if case .guardrailViolation = error { throw CleanerFallbackError("guardrail") }
             throw error

@@ -104,6 +104,14 @@ final class PromptTests: XCTestCase {
         XCTAssertTrue(Prompts.system(context: CleanupContext(tone: mail.tone, hint: mail.hint, format: mail.format)).contains("TONE: formal"))
     }
 
+    func testUserMessageWrapsTranscriptAsData() {
+        let m = Prompts.userMessage("hello there")
+        XCTAssertTrue(m.contains("<transcript>\nhello there\n</transcript>"))
+        XCTAssertTrue(m.lowercased().contains("output only the cleaned text"))
+        XCTAssertTrue(m.lowercased().contains("do not answer"))
+        XCTAssertEqual(Prompts.exampleCleaned, RulesCleaner.clean(Prompts.exampleRaw, context: CleanupContext()))
+    }
+
     func testTokenCap() {
         XCTAssertEqual(Prompts.maxResponseTokens(rawCharacters: 400), 264)
         XCTAssertEqual(Prompts.maxResponseTokens(rawCharacters: 100_000), 4096)

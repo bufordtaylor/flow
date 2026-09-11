@@ -64,6 +64,11 @@ final class AppCoordinator {
         status.update(hotkey: settings.hotkey, mode: settings.hotkeyMode)
 
         hotkey.onEvent = { [weak self] e in self?.hotkeyEvent(e) }
+        hotkey.onTapGaveUp = { [weak self] in
+            self?.state.tapRunning = false
+            self?.status.setIcon(.error)
+            Notify.send("Flow", "The dictation hotkey was disabled because the system kept stalling it. Option-click the menu bar icon to dictate, or reopen Flow to retry the hotkey.")
+        }
 
         applyConfig()
         refreshPermissions()
@@ -141,6 +146,12 @@ final class AppCoordinator {
         state.micGranted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
         let trusted = AXIsProcessTrusted()
         state.axTrusted = trusted
+        if ProcessInfo.processInfo.environment["FLOW_NO_TAP"] == "1" {
+            // Safe mode: no global event tap at all. Dictate by Option-clicking the menu bar icon.
+            state.tapRunning = false
+            state.modelInstalled = ModelLayout.isComplete(at: settings.modelPath)
+            return
+        }
         if trusted {
             state.markTrusted()
             if !hotkey.isRunning {

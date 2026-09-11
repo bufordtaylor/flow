@@ -141,8 +141,33 @@ final class HotkeyTap: @unchecked Sendable {
         timerQueue.async { [self] in armTimer?.cancel(); armTimer = nil }
     }
 
+    /// Called when macOS disables the tap (timeout / user input). Re-enabling in a tight loop while the
+    /// system is starving the tap thread keeps the keyboard frozen, so back off: after too many timeouts in
+    /// a short window, stop the tap entirely and report it, which frees the keyboard. A rare, isolated
+    /// timeout just re-enables.
+    private var recentTimeouts: [Date] = []
+    static let timeoutWindowSeconds: TimeInterval = 2
+    static let timeoutGiveUpCount = 2
+    /// Called on the main queue when the tap gives up so the app can free the keyboard and warn the user.
+    var onTapGaveUp: (() -> Void)?
+
     private func reenable() {
-        lock.lock(); let p = port; lock.unlock()
-        if let p { CGEvent.tapEnable(tap: p, enable: true); Log.info("hotkey", "tap re-enabled after macOS disabled it") }
+        lock.lock()
+        let now = Date()
+        recentTimeouts.append(now)
+        recentTimeouts.removeAll { now.timeIntervalSince($0) > Self.timeoutWindowSeconds }
+        let giveUp = recentTimeouts.count >= Self.timeoutGiveUpCount
+        let p = port
+        lock.unlock()
+        guard let p else { return }
+        if giveUp {
+            // Disable the tap and tear it down so every keystroke flows normally again.
+            CGEvent.tapEnable(tap: p, enable: false)
+            Log.error("hotkey", "tap disabled repeatedly under load; giving up to keep the keyboard responsive")
+            DispatchQueue.main.async { [weak self] in self?.onTapGaveUp?(); self?.stop() }
+            return
+        }
+        CGEvent.tapEnable(tap: p, enable: true)
+        Log.info("hotkey", "tap re-enabled after macOS disabled it")
     }
 }

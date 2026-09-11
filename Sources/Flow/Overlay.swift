@@ -134,7 +134,8 @@ final class OverlayController {
         }
     }
 
-    /// Width from the text, clamped; bottom center of the screen that has the frontmost app's window.
+    /// Width from the text, clamped; top center of the screen that has the frontmost app's window (kept off
+    /// the bottom so it never covers the caret).
     func layout() {
         let screen = Self.screenOfFrontmostWindow()
         let maxW = min(Self.maxWidth, screen.frame.width - 40)
@@ -146,7 +147,7 @@ final class OverlayController {
             h = min(Self.maxHeight, max(Self.minHeight, h2))
         }
         let x = screen.visibleFrame.midX - w / 2
-        let y = screen.visibleFrame.minY + 80
+        let y = screen.visibleFrame.maxY - h - 80
         panel.setFrame(NSRect(x: x, y: y, width: w, height: h), display: true)
     }
 
