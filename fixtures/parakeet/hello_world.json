@@ -1,0 +1,36 @@
+{
+  "file" : "hello_world.wav",
+  "inference_ms" : 81,
+  "machine" : "Mac16,5",
+  "model" : "parakeet-tdt-0.6b-v3",
+  "note" : "Recorded via ParakeetTranscriber.transcribeFileDetailed (VAD trim + gain + one pass over the fixture).",
+  "recorded_at" : "2026-09-11T05:18:58Z",
+  "text" : "Hello world.",
+  "tokens" : [
+    {
+      "end" : 0.23999999999999999,
+      "start" : 0,
+      "token" : " H"
+    },
+    {
+      "end" : 0.47999999999999998,
+      "start" : 0.23999999999999999,
+      "token" : "ello"
+    },
+    {
+      "end" : 0.80000000000000004,
+      "start" : 0.64000000000000001,
+      "token" : " wor"
+    },
+    {
+      "end" : 0.96000000000000008,
+      "start" : 0.80000000000000004,
+      "token" : "ld"
+    },
+    {
+      "end" : 1.3600000000000001,
+      "start" : 1.28,
+      "token" : "."
+    }
+  ]
+}
