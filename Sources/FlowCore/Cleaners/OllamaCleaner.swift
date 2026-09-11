@@ -51,6 +51,7 @@ public final class OllamaCleaner: Cleaner, @unchecked Sendable {
             "model": model,
             "stream": false,
             "think": false,
+            "keep_alive": "30m",
             "messages": [
                 ["role": "system", "content": Prompts.system(context: context)],
                 ["role": "user", "content": Prompts.userMessage(Prompts.exampleRaw)],
@@ -82,6 +83,18 @@ public final class OllamaCleaner: Cleaner, @unchecked Sendable {
     }
 
     // MARK: Availability and pulls
+
+    /// Loads the model into memory (empty prompt, keep_alive) so the first real cleanup isn't a cold start.
+    /// Fire-and-forget; failures are ignored.
+    public func warmUp() async {
+        var req = URLRequest(url: baseURL.appendingPathComponent("api/chat"))
+        req.httpMethod = "POST"
+        req.timeoutInterval = 60
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let body: [String: Any] = ["model": model, "stream": false, "keep_alive": "30m", "messages": [], "options": ["num_predict": 0]]
+        req.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        _ = try? await session.data(for: req)
+    }
 
     /// GET /api/tags with a short timeout. Returns the installed model names, or nil if the server is down.
     public func tags(timeoutMs: Int = 500) async -> [String]? {

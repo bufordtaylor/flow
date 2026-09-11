@@ -132,6 +132,10 @@ final class AppCoordinator {
             avail[.ollama] = a
             state.ollamaTags = await o.tags() ?? []
             Log.info("cleanup", "ollama availability: \(a.available) (\(a.reason)); model=\(settings.ollamaModel)")
+            // Preload the model so the first dictation's cleanup is warm, not a multi-second cold load.
+            if a.available, settings.cleanupBackend == .ollama {
+                Task.detached { await o.warmUp() }
+            }
         } else if ollama != nil {
             avail[.ollama] = CleanerAvailability(available: false, reason: "Open Cleanup settings to check Ollama.")
         }
