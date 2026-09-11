@@ -2,7 +2,11 @@
 
 An open-source, fully local [Wispr Flow](https://wisprflow.ai) clone for macOS: hold a hotkey, talk, release, and cleaned-up text lands at the caret of whatever app has focus. Unlike Wispr Flow, everything runs on your Mac. No account, no cloud, no subscription. The only network request the app ever makes is a one-time model download on first run.
 
-> Built in one shot with [Build Your Own Software](https://buildyourown.software/like/wisprflow) — the entire app was vibecoded from a single prompt.
+<h2 align="center">
+  ⚡ Vibecoded in <em>one shot</em> with <a href="https://buildyourown.software/like/wisprflow">Build Your Own Software</a> ⚡
+</h2>
+
+<p align="center"><sub>The entire app — pipeline, CoreML transcriber, cleaners, AppKit UI, tests — came out of a single prompt.</sub></p>
 
 - Speech to text: NVIDIA Parakeet TDT 0.6B v3 on CoreML through [FluidAudio](https://github.com/FluidInference/FluidAudio).
 - Cleanup: Apple's on-device Foundation Model on macOS 26 with Apple Intelligence on; Ollama on `127.0.0.1` when it isn't; a rule-based cleaner when neither is there.
